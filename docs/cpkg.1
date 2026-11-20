@@ -1,0 +1,83 @@
+.\" Man page for cpkg archive utility
+.\" Copyright (C) 2026 Denys Laptev
+.\" License: GPL-3.0-or-later
+.TH CPKG 1 "November 2026" "cpkg" "CatOS Archive Utility Manual"
+.SH NAME
+cpkg \- pack and unpack .cpkg archives for CatOS and catpm
+.SH SYNOPSIS
+.B cpkg
+[\fIOPTIONS\fR] \fICOMMAND\fR [\fIARGS\fR...]
+.SH DESCRIPTION
+.B cpkg
+is an archive packing and unpacking utility written in Rust by
+Denys Laptev for CatOS and
+.BR catpm (1).
+It packs directory trees and package payloads into
+.I .cpkg
+archives, unpacks archives into target roots or package database
+directories, and exposes library functions consumed by
+.BR catpm (1).
+.SH COMMANDS
+.TP
+.B pack \fI<SOURCE_DIR> <OUTPUT_ARCHIVE>\fR
+Packs files and subdirectories from
+.I <SOURCE_DIR>
+into a
+.I .cpkg
+archive file at
+.IR <OUTPUT_ARCHIVE> .
+.TP
+.B unpack \fI<ARCHIVE> <DEST_DIR>\fR
+Unpacks entries from
+.I <ARCHIVE>
+into
+.IR <DEST_DIR> ,
+respecting overwrite, force, dry-run, and checksum options.
+.SH PACKAGE HOOKS (commands.json)
+A package payload directory may include a
+.I commands.json
+file defining shell commands executed during lifecycle events in
+.BR catpm (1):
+.PP
+.nf
+{
+  "after_install": ["echo installed test1"],
+  "after_reinstall": ["echo reinstalled test1"],
+  "after_remove": ["echo removed test1"]
+}
+.fi
+.SH OPTIONS
+.TP
+.BR \-f ", " \-\-force
+Overwrite existing files or directories without prompting.
+.TP
+.BR \-\-dry-run
+Simulate packing or unpacking without writing target files.
+.TP
+.BR \-\-no-checksum
+Skip checksum validation when unpacking if supported.
+.TP
+.BR \-q ", " \-\-quiet
+Suppress non-error output.
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose diagnostic output.
+.SH SECURITY
+Avoid parent directory traversal components (\fB..\fR) when creating
+archive entries or unpacking into target roots. When invoked through
+.BR catpm (1),
+target containment and hook commands are additionally validated.
+.SH EXAMPLES
+.nf
+cpkg pack pkg-test1/ test1-1.0.0.cpkg
+cpkg pack repo-src/ repo.cpkg
+cpkg unpack test1-1.0.0.cpkg /tmp/catpm-root
+.fi
+.SH SEE ALSO
+.BR catpm (1),
+.BR catpm\-config (5),
+.BR catpm\-repository (5)
+.SH AUTHOR
+Written by Denys Laptev.
+.SH LICENSE
+GPL-3.0-or-later.
